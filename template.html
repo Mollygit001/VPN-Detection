@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>IPHub VPN Detection</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-900 flex justify-center items-center h-screen">
+    <div class="text-center max-w-md w-full bg-white shadow-md p-6 rounded-md">
+        <?php if ($accessState === 'blocked') : ?>
+            <h1 class="text-red-500 font-semibold text-xl">Request blocked. You appear to be browsing from a VPN/Proxy/Server.</h1>
+            <p class="mt-4">Your IP address: <?= $ip; ?></p>
+        <?php elseif ($accessState === 'granted') : ?>
+            <h1 class="text-green-500 font-semibold text-xl">Welcome! Your IP is clear for access.</h1>
+        <?php else : ?>
+            <h1 class="text-yellow-500 font-semibold text-xl">Error: Could not determine access state.</h1>
+        <?php endif; ?>
+
+        <form method="POST" class="mt-4">
+            <label for="ipAddress" class="block text-sm font-semibold text-gray-600">Check another IP:</label>
+            <input type="text" id="ipAddress" name="ipAddress" placeholder="Enter IP address" class="mt-2 p-2 w-full border rounded-md">
+            <button type="submit" class="mt-4 bg-blue-500 text-white py-2 px-4 rounded-md">Check</button>
+        </form>
+
+        <?php if (!empty($result)) : ?>
+            <div class="mt-6 p-4 bg-gray-50 border rounded-md">
+                <h2 class="text-lg font-semibold">Results for IP: <?= htmlspecialchars($result['submittedIp'] ?? ''); ?></h2>
+                <p class="mt-2">
+                    <strong>Access Status:</strong> 
+                    <?= isset($result['accessState']) && $result['accessState'] === 'blocked' ? 'Blocked (VPN/Proxy/Server)' : 'Granted'; ?>
+                </p>
+
+                <?php if (isset($result['ipInfo']) && is_object($result['ipInfo'])) : ?>
+                    <div class="mt-4">
+                        <h3 class="font-medium">IP Details:</h3>
+                        <ul class="list-disc pl-5">
+                            <li><strong>IP:</strong> <?= $result['ipInfo']->ip ?? 'Unknown'; ?></li>
+                            <li><strong>Country Code:</strong> <?= $result['ipInfo']->countryCode ?? 'Unknown'; ?></li>
+                            <li><strong>Country:</strong> <?= $result['ipInfo']->countryName ?? 'Unknown'; ?></li>
+                            <li><strong>ASN:</strong> <?= $result['ipInfo']->asn ?? 'N/A'; ?></li>
+                            <li><strong>ISP:</strong> <?= $result['ipInfo']->isp ?? 'N/A'; ?></li>
+                            <li><strong>Hostname:</strong> <?= $result['ipInfo']->hostname ?? 'N/A'; ?></li>
+                        </ul>
+                    </div>
+                <?php else: ?>
+                    <p class="mt-2">No IP details available for this IP address.</p>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+    </div>
+</body>
+</html>
